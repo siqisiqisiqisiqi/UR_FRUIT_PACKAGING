@@ -1,0 +1,15 @@
+<launch>
+
+    <!-- Defect Detection Node -->
+    <arg name="camera_param_fp" default="$(find zed_3D_detection)/params" />
+
+    <arg name="scanning_path" default="box1.yaml"/>
+    <node pkg="fruit_packaging" type="test_controller.py" name="test_move" output="screen">
+        <param name="~scanning_path" value="$(arg scanning_path)"/>
+    </node>
+
+    <node name="Bounding_Box_Visual" pkg="fruit_packaging" type="visualization.py" output="screen">
+        <param name="~camera_param_fp" value="$(arg camera_param_fp)"/>
+    </node>
+
+</launch>

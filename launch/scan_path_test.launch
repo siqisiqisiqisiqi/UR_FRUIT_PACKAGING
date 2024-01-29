@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- Scanning path file -->
+    <arg name="scanning_path" default="demo.yaml"/>
+    <!-- ROS publish rate -->
+    <arg name="publish_rate" default="50"/>
+
+    <!-- Defect Detection Node -->
+    <node pkg="fruit_packaging" type="scan_path_test.py" name="scan_path_test" output="screen">
+        <param name="~scanning_path" value="$(arg scanning_path)"/>
+        <param name="~publish_rate" value="$(arg publish_rate)"/>
+    </node>
+</launch>

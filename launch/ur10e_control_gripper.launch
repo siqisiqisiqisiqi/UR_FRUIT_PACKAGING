@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<launch>
+    <node pkg="fruit_packaging" type="control_gripper.py" name="ur10e_gripper_control_node" output="screen">
+    </node>
+ </launch>
