@@ -1,6 +1,14 @@
 #!/usr/bin/env python3
+import os
+import sys
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PARENT_DIR = os.path.dirname(BASE_DIR)
+sys.path.append(PARENT_DIR)
+
 import PySimpleGUI as sg
 from PIL import Image, ImageTk
+import time
 import cv2
 
 
@@ -25,7 +33,7 @@ class ImageViewer:
 
 
 class HMI:
-    def __init__(self, img_sz) -> None:
+    def __init__(self, img_sz=(800, 400)) -> None:
 
         theme_dict = {'BACKGROUND': '#2B475D',
                       'TEXT': '#FFFFFF',
@@ -59,13 +67,13 @@ class HMI:
         block_3 = [[sg.Text('Package Type', font='Any 20')],
                    [sg.Radio("Type1", "bag", key='Type1', font='Any 12',
                              enable_events=True, default=True, size=(10, 1)),
-                    sg.Image("figures/type1.png", enable_events=True)],
+                    sg.Image("src/figures/type1.png", enable_events=True)],
                    [sg.Radio("Type2", "bag", key='Type2', font='Any 12',
                              enable_events=True, size=(10, 1)),
-                    sg.Image("figures/type2.png", enable_events=True)],
+                    sg.Image("src/figures/type2.png", enable_events=True)],
                    [sg.Radio("Type3", "bag", key='Type3', font='Any 12',
                              enable_events=True, size=(10, 1)),
-                    sg.Image("figures/type3.png", enable_events=True)],
+                    sg.Image("src/figures/type3.png", enable_events=True)],
                    [sg.T('Select the type of the packages.', font='Any 12')],
                    [sg.Button('Go'), sg.Button('Exit')]]
 
@@ -90,25 +98,25 @@ class HMI:
                            no_titlebar=True, resizable=True, finalize=True, right_click_menu=sg.MENU_RIGHT_CLICK_EDITME_VER_LOC_EXIT)
         return window
 
-    def SetLED(self, window, key, color):
-        graph = window[key]
+    def SetLED(self, key, color):
+        graph = self.window[key]
         graph.erase()
         graph.draw_circle((0, 0), 30, fill_color=color, line_color=color)
 
     def WaitingLED(self):
-        self.SetLED(self.window, '_wait_', 'green')
-        self.SetLED(self.window, '_run_', 'red')
-        self.SetLED(self.window, '_complete_', 'red')
+        self.SetLED('_wait_', 'green')
+        self.SetLED('_run_', 'red')
+        self.SetLED('_complete_', 'red')
 
     def RunningLED(self):
-        self.SetLED(self.window, '_wait_', 'red')
-        self.SetLED(self.window, '_run_', 'green')
-        self.SetLED(self.window, '_complete_', 'red')
+        self.SetLED('_wait_', 'red')
+        self.SetLED('_run_', 'green')
+        self.SetLED('_complete_', 'red')
 
     def CompletedLED(self):
-        self.SetLED(self.window, '_wait_', 'red')
-        self.SetLED(self.window, '_run_', 'red')
-        self.SetLED(self.window, '_complete_', 'green')
+        self.SetLED('_wait_', 'red')
+        self.SetLED('_run_', 'red')
+        self.SetLED('_complete_', 'green')
 
     def LEDIndicator(self, key=None, radius=50):
         return sg.Graph(canvas_size=(radius, radius),
@@ -122,3 +130,41 @@ class HMI:
 
     def quit(self):
         self.window.close()
+
+
+def main():
+    hmi = HMI()
+    i = 0
+    img_path = "src/figures/fruit_detection.png"
+    hmi.WaitingLED()
+    while True:
+        i = i + 1
+        t = time.time()
+        event, value = hmi.window.read(timeout=10)
+        if event == "Go":
+            if value['Type1'] == True:
+                box_type = 1
+            elif value['Type2'] == True:
+                box_type = 2
+            else:
+                box_type = 3
+            print(f"box_type is {box_type}.")
+        if event == sg.WIN_CLOSED or event == 'Exit':
+            break
+        if i == 200:
+            hmi.RunningLED()
+        elif i == 400:
+            hmi.CompletedLED()
+        elif i == 600:
+            hmi.WaitingLED()
+            i = 0
+
+        img = cv2.imread(img_path)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        hmi.update_camera_img(img)
+
+    hmi.window.close()
+
+
+if __name__ == "__main__":
+    main()

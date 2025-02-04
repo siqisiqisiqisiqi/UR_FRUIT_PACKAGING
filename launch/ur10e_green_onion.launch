@@ -1,0 +1,6 @@
+<launch>
+
+    <node pkg="fruit_packaging" type="green_onion_picking.py" name="green_onion_picking" output="screen">
+    </node>
+
+</launch>
